@@ -1,3 +1,116 @@
+## Preparation
+
+Set up environment
+
+``` bash
+git clone -b tutorial https://github.com/LRMPUT/autoware_put_ws.git
+```
+is based on release 0.44.1
+
+Download and unpack a sample map.
+
+- You can also download [the map](https://drive.google.com/file/d/1499_nsbUbIeturZaDj7jhUownh5fvXHd/view?usp=sharing) manually.
+
+```bash
+gdown -O ~/autoware_map/ 'https://docs.google.com/uc?export=download&id=1499_nsbUbIeturZaDj7jhUownh5fvXHd'
+unzip -d ~/autoware_map ~/autoware_map/sample-map-planning.zip
+```
+
+!!! Note
+
+    Sample map: Copyright 2020 TIER IV, Inc.
+
+Check if you have `~/autoware_data` folder and files in it.
+
+```bash
+$ cd ~/autoware_data
+$ ls -C -w 30
+image_projection_based_fusion
+lidar_apollo_instance_segmentation
+lidar_centerpoint
+tensorrt_yolo
+tensorrt_yolox
+traffic_light_classifier
+traffic_light_fine_detector
+traffic_light_ssd_fine_detector
+yabloc_pose_initializer
+```
+
+If not, please, follow [Manual downloading of artifacts](https://github.com/autowarefoundation/autoware/tree/main/ansible/roles/artifacts).
+
+[Rocker](https://github.com/osrf/rocker) is required to run the provided Bash scripts, especially when launching Docker containers with GUI, NVIDIA GPU, or other system integrations.
+
+```
+pip3 install rocker
+```
+## How to set up a workspace
+
+> Note: Before proceeding, confirm and agree with the [NVIDIA Deep Learning Container license](https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license). By pulling and using the Autoware Universe images, you accept the terms and conditions of the license.
+
+1. Pull the Docker image
+
+   ```bash
+   docker pull macnack/autoware-universe:pix-cuda-tutorial
+   ```
+
+2. Launch a Docker container.
+
+   - For amd64 architecture computers with NVIDIA GPU:
+
+     ```bash
+     cd ~/autoware_put_ws
+     ./run_amd64.sh
+     ```
+
+   For more advanced usage, see [here](https://github.com/autowarefoundation/autoware/tree/main/docker/README.md).
+
+   After that, move to the workspace in the container:
+
+   ```bash
+   cd autoware_put_ws
+   ```
+
+3. Create the `src` directory and clone repositories into it.
+
+   ```bash
+   mkdir src
+   vcs import src < autoware.repos --recursive
+   ```
+
+4. Update dependent ROS packages.
+
+   The dependency of Autoware may change after the Docker image was created.
+   In that case, you need to run the following commands to update the dependency.
+
+   ```bash
+   sudo apt update
+   rosdep update
+   rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+   ```
+
+5. Build the workspace.
+
+   ```bash
+   colcon build --symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=1
+   ```
+
+   If there is any build issue due to low size memory swap, refer to [Issue](https://github.com/orgs/autowarefoundation/discussions/2901#discussioncomment-3750573).
+
+6. To enter the container with new terminal window, run the following command:
+   
+   ```bash
+   cd ~/autoware_put_ws
+   ./enter.sh
+   ```
+
+## Test stack
+
+It is possible to test the stack offline using planning simulator.
+```bash
+ros2 launch autoware_launch planning_simulator.launch.xml map_path:=$HOME/autoware_map/sample-map-planning vehicle_model:=pixkit sensor_model:=sample_sensor_kit
+
+```
+
 # Autoware - the world's leading open-source software project for autonomous driving
 
 ![Autoware_RViz](https://user-images.githubusercontent.com/63835446/158918717-58d6deaf-93fb-47f9-891d-e242b02cba7b.png)
