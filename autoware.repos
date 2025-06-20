@@ -120,3 +120,11 @@ repositories:
     type: git
     url: https://github.com/tier4/agnocast.git
     version: 2.1.0
+  vehicle/external/pixkit_launch:
+    type: git
+    url: https://github.com/LRMPUT/pixkit_launch.git
+    version: main
+  vehicle/external/pix_driver:
+    type: git
+    url: https://github.com/LRMPUT/pix_driver.git
+    version: main
